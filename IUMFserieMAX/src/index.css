@@ -1,0 +1,479 @@
+/* @import de fuentes externas */
+@import '~@fortawesome/fontawesome-free/css/all.min.css';
+
+/* Estilos globales */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+/* Estilos del botón */
+button {
+  background-color: #333;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+button:hover {
+  color: #00BFFF; /* Azul celeste */
+  transform: scale(1.25); /* Aumenta ligeramente el tamaño */
+}
+
+.login{
+  background-color: #333;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  text-decoration: none;
+}
+
+.login:hover {
+  color: #00BFFF; /* Azul celeste */
+  transform: scale(1.25); /* Aumenta ligeramente el tamaño */
+}
+/*------------HEADER-----------*/
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #333;
+  color: #fff;
+}
+
+/* Estilos del menú */
+.menu {
+  position: relative;
+}
+
+.menuButton {
+  background-color: #333;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.menuButton:hover {
+  color: #00BFFF; /* Azul celeste */
+  transform: scale(1.25); /* Aumenta ligeramente el tamaño */
+}
+
+.dropdownContent {
+  display: none; /* Por defecto está oculto */
+  position: absolute;
+  background-color: #464646;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+  margin-top: 10px;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+.dropdownContent.show {
+  display: block;
+  opacity: 1;
+  transform: scale(1);
+}
+
+.menuItem {
+  display: block;
+  padding: 10px 20px;
+  color: #ede6e6;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.menuItem:hover {
+  background-color: #636363;
+}
+
+
+
+/* Estilos del logo */
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logoImage {
+  width: 120px;
+  height: 120px;
+}
+
+/* Estilos de la sección derecha */
+.rightSection {
+  display: flex;
+  gap: 10px;
+}
+
+/*----------PRODUCTOS------------*/
+
+.productos{
+  background-color: #333;
+}
+
+.productosContainer {
+  padding: 20px;
+  display: flex; /* Usar flexbox para el contenedor */
+  flex-wrap: wrap; /* Permite que los elementos se envuelvan en múltiples líneas si es necesario */
+  justify-content: space-between; /* Alinea los elementos con espacio entre ellos */
+}
+.productList {
+  display: flex; /* Cambiar a flex para alinear horizontalmente los elementos de la lista */
+  flex-wrap: wrap; /* Permitir que los elementos se envuelvan si no hay suficiente espacio */
+  list-style: none; /* Eliminar los puntos de lista predeterminados */
+  padding: 0; /* Eliminar el padding predeterminado */
+  margin: 0; /* Eliminar el margen predeterminado */
+}
+
+.productItem {
+  border: 1px solid #ccc;
+  border-radius: 8px; /* Bordes redondeados */
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
+  display: flex;
+  flex-direction: column; /* Coloca el contenido en columna */
+  align-items: center; /* Centra el contenido horizontalmente */
+  text-align: center; /* Centra el texto */
+  width: 220px; /* Tamaño fijo para el contenedor de producto */
+  margin: 0 10px 20px; /* Margen horizontal y vertical (ajustable) */
+}
+
+/* Estilos para pantallas pequeñas (móviles) */
+@media (max-width: 599px) {
+
+
+  .logoImage {
+    width: 100px;
+    height: 100px;
+  }
+
+  .rightSection {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .productosContainer {
+    padding: 10px;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .productItem {
+    width: 100%; /* Ocupa el ancho completo del contenedor */
+    padding: 10px;
+  }
+}
+
+/* Estilos para pantallas medianas (tablets) */
+@media (min-width: 600px) and (max-width: 899px) {
+
+  .logoImage {
+    width: 110px;
+    height: 110px;
+  }
+
+  .rightSection {
+    gap: 10px;
+  }
+
+  .productosContainer {
+    padding: 15px;
+    gap: 15px;
+  }
+
+  .productItem {
+    width: calc(50% - 15px); /* Dos elementos por fila, con espaciado */
+    padding: 15px;
+  }
+}
+
+/* Estilos para pantallas grandes */
+@media (min-width: 900px) {
+
+  .header{
+    padding: 20px 40px;
+  }
+  .logoImage {
+    width: 120px;
+    height: 120px;
+  }
+
+  .rightSection {
+    gap: 10px;
+  }
+
+  .productosContainer {
+    padding: 20px;
+    gap: 20px;
+  }
+
+  .productItem {
+    width: 220px; /* Tamaño fijo para el contenedor de producto */
+    padding: 20px;
+  }
+}
+
+.productImage {
+  max-width: 100px;
+  height: auto; /* Mantiene la proporción de la imagen */
+  margin-bottom: 10px;
+}
+
+.quantityInput {
+  margin: 10px 0;
+}
+
+.addToCartButton {
+  background-color: #333;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.addToCartButton:hover {
+  color: #fff; /* Azul celeste */
+  transform: scale(1.1); /* Aumenta ligeramente el tamaño */
+}
+
+/* -----------LOGIN--------------*/
+.login-form {
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 20px;
+  background-color: #e8dede;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.login-form label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #333;
+}
+
+.login-form p {
+  margin: 0 0 5px;
+}
+
+.login-form input[type="text"],
+.login-form input[type="password"], .login-form input[type="email"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.login-form button[type="submit"] {
+  width: 100%;
+  padding: 10px;
+  background-color: #333;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.login-form button[type="submit"]:hover {
+  background-color: #00BFFF;
+  transform: scale(1.05);
+}
+
+/*-----------CARRITO-----------*/
+.cartContainer {
+  padding: 40px; /* Aumenta el padding para dar más espacio alrededor del contenido */
+  background-color: #333;
+  border-radius: 8px; /* Bordes redondeados para el contenedor principal */
+  margin: 20px auto; /* Añade un margen superior para separar del header */
+  max-width: 800px; /* Limita el ancho máximo para centrar el contenido */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Añade una sombra para dar profundidad */
+}
+
+.cartCount {
+  background-color: #ff0000; /* Color de fondo rojo */
+  color: #fff; /* Color del texto blanco */
+  border-radius: 50%; /* Bordes redondeados para hacer un círculo */
+  padding: 5px 10px; /* Espaciado interno */
+  font-size: 12px; /* Tamaño de fuente pequeño */
+  position: absolute; /* Posicionamiento absoluto */
+  top: -10px; /* Ajusta la posición vertical */
+  right: -10px; /* Ajusta la posición horizontal */
+}
+
+.cartTitle {
+  margin-bottom: 30px; /* Añade un margen inferior para separar el título de los productos */
+  text-align: center;
+  color: #fff;
+  font-size: 24px;
+}
+
+.cartItem {
+  background-color: #878080;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px; /* Añade un margen inferior para separar los items */
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.cartItem img {
+  max-width: 100px;
+  margin-right: 20px; /* Añade un margen derecho para separar la imagen del texto */
+}
+
+.cartItemDetails {
+  flex: 1;
+  color: #ede6e6;
+}
+
+.cartItemDetails p {
+  margin: 5px 0; /* Margen para separar las líneas de texto */
+}
+
+.cartTotal {
+  text-align: right;
+  color: #00BFFF;
+  font-size: 20px;
+  margin-top: 20px;
+}
+
+.checkoutButton {
+  background-color: #00BFFF;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  text-align: center;
+  width: 100%; /* Botón de ancho completo */
+  margin-top: 20px;
+}
+
+.checkoutButton:hover {
+  background-color: #008CBA;
+  transform: scale(1.05);
+}
+
+/*-----------Historial de compras-----------*/
+.historyContainer {
+  padding: 20px;
+  background-color: #f7f7f7;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin: 20px auto;
+}
+
+.historyList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.historyItem {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.historyItem:hover {
+  transform: scale(1.02); /* Aumenta ligeramente el tamaño */
+}
+
+.historyDetails {
+  color: #333;
+}
+
+/* -----ADMIN----- */
+.adminContainer {
+  padding: 20px;
+  background-color: #f7f7f7;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 1200px;
+  margin: 20px auto;
+}
+
+.adminSection {
+  margin-bottom: 30px;
+}
+
+.adminTitle {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.adminButton {
+  background-color: #333;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.adminButton:hover {
+  background-color: #00BFFF;
+  transform: scale(1.05);
+}
+
+/* Ajustes adicionales para formularios y listas */
+.adminInput {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.adminList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.adminListItem {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.adminListItem:hover {
+  transform: scale(1.02);
+}
