@@ -1,22 +1,21 @@
 import React, { useState, useEffect } from "react";
 import {
-  removeCategoria,
-  getTipoProductoById,
   getProductById,
   getAllPlataformas,
   getAllTipoProducto,
   getProducts,
-  addProduct,
   removeProduct,
   getAdminStatistics,
   getRecargasStatistics,
   getProductosStatistics,
   getAllAdmins,
-  updateProduct
+  updateProduct,
+  getTipoProductoById,
+  removeCategoria,
+  updateCategoria
 } from "./../../api";
 import {
   Container,
-  TextField,
   Button,
   List,
   ListItem,
@@ -26,143 +25,195 @@ import {
   Paper,
   Select,
   MenuItem,
-  FormControl,
-  InputLabel,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from "@mui/material";
 import { useParams } from "react-router-dom";
 import ProductosTabla from "../Products/ProductosTabla";
 import ProductoFormulario from "../Products/ProductoFormulario";
+import CategoriaFormulario from "../Categorias/CategoriaFormulario";
 import ProductoEditarFormulario from "../Products/ProductoEditarFormulario";
 import CategoriasTabla from "../Categorias/CategoriasTabla";
+import CategoriaEditarFormulario from "../Categorias/CategoriaEditarFormulario";
 
 const AdminDashboard = () => {
+  const [openDialog, setOpenDialog] = useState(false);
+  const [dialogMessage, setDialogMessage] = useState("");
+
   const { idAdmin } = useParams();
   const [products, setProducts] = useState([]);
-  const [categorias, setCategorias] = useState([]);
-  const [newProduct, setNewProduct] = useState({
-    nom_producto: "",
-    precio_producto: "",
-    id_plataforma: "",
-    id_tipo_producto: "",
-    correo_asociado: "",
-    pass_asociada: "",
-    imagen: null,
-    estado: 1,
+  const [newProduct, setNewProduct] = useState({});
+  const [newCategoria, setNewCategoria] = useState({});
+  const [statistics, setStatistics] = useState({
+    totalCompras: 0,
+    totalRecargas: 0,
   });
-  const [statistics, setStatistics] = useState({ sales: 0, recharges: 0 });
   const [recargasStats, setRecargasStats] = useState([]);
   const [productosStats, setProductosStats] = useState([]);
-  const [productStats, setProductStats] = useState([]);
-  const [period, setPeriod] = useState("daily");
+  const [periodRecargas, setPeriodRecargas] = useState("daily");
+  const [periodProducto, setPeriodProducto] = useState("daily");
   const [admins, setAdmins] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
-  const [tipoProductosStats, setTipoProductosStats] = useState([]);
+  const [categorias, setCategorias] = useState([]);
   const [plataformasStats, setPlatafromasStats] = useState([]);
-  const [successMessage, setSuccessMessage] = useState("");
-  const [isFormVisible, setIsFormVisible] = useState(false);
-  const [isEditFormVisible, setIsEditFormVisible] = useState(false);
-  const [isAgregarFormVisible, setIsAgregarFormVisible] = useState(false);
-  const [isEditarFormVisible, setIsEditarFormVisible] = useState(false);
+  const [isFormProductoVisible, setIsFormProductoVisible] = useState(false);
+  const [isFormCategoriaVisible, setIsFormCategoriaVisible] = useState(false);
+  const [isTableProductoVisible, setIsTableProductoVisible] = useState(false);
+  const [isTableCategoriaVisible, setIsTableCategoriaVisible] = useState(false);
+  const [isEditFormProductoVisible, setIsEditFormProductoVisible] = useState(false);
+  const [isEditFormCategoriaVisible, setIsEditFormCategoriaVisible] = useState(false);
   const [productoAEditar, setProductoAEditar] = useState(null);
+    const [categoriaAEditar, setCategoriaAEditar] = useState(null);
+  const [tipoProductoAEditar, setTipoProductoAEditar] = useState(null);
 
-  const handleEditNameInputChange = (event) => {
-    setProductoAEditar({ ...productoAEditar, nom_producto: event.target.value });
+  const showSuccessDialog = (message) => {
+    setDialogMessage(message);
+    setOpenDialog(true);
   };
 
-  const handleEditPriceInputChange = (event) => {
-    setProductoAEditar({ ...productoAEditar, precio_producto: event.target.value });
-  };
-
-  const handleEditPlataformaChange = (event) => {
-    setProductoAEditar({ ...productoAEditar, id_plataforma: event.target.value });
-  };
-
-  const handleEditTipoProductoChange = (event) => {
-    setProductoAEditar({ ...productoAEditar, id_tipo_producto: event.target.value });
-  };
-
-  const handleEditCorreoAsociadoChange = (event) => {
-    setProductoAEditar({ ...productoAEditar, correo_asociado: event.target.value });
-  };
-
-  const handleEditPasswordAsociadoChange = (event) => {
-    setProductoAEditar({ ...productoAEditar, password_asociado: event.target.value });
-  };
-
-  const handleEditImageChange = (event) => {
-    // Aquí puedes manejar la carga de la nueva imagen si necesitas preprocesarla
-    // o simplemente pasar el evento al componente hijo.
-    // Si solo lo pasas, no necesitas esta función aquí.
-    console.log('Imagen cambiada para edición:', event.target.files[0]);
-  };
-
-  const handleGuardarCambios = async (datosProductoActualizado) => {
+  const handleGuardarEditProducto = async (datosProductoActualizado) => {
     const productId = datosProductoActualizado.id_producto;
 
     try {
-      const productUpdate = await updateProduct(productId,datosProductoActualizado);
+      const productUpdate = await updateProduct(
+        productId,
+        datosProductoActualizado
+      );
+      showSuccessDialog("Producto editado correctamente.");
       setProductoAEditar(productUpdate);
-      setIsEditFormVisible(false);
+      setIsEditFormProductoVisible(false);
       setProductoAEditar(null);
       fetchProducts();
+      handleInicial()
     } catch (error) {
       console.error("Error al obtener los detalles del producto:", error);
     }
   };
 
-  const handleCloseEditForm = () => {
-    setIsEditFormVisible(false);
-    setProductoAEditar(null);
+  const handleGuardarEditCategoria = async (datosCategoriaActualizado) => {
+    const categoriaId = datosCategoriaActualizado.id_tipo_producto;
+
+    try {
+      const categoriaUpdate = await updateCategoria(
+        categoriaId,
+        datosCategoriaActualizado
+      );
+      showSuccessDialog("Categoria editada correctamente.");
+      setCategoriaAEditar(categoriaUpdate);
+      setIsEditFormProductoVisible(false);
+      setCategoriaAEditar(null);
+      fetchTipoProducts();
+      handleInicial()
+    } catch (error) {
+      console.error("Error al obtener los detalles de la categoria:", error);
+    }
   };
 
   const handleEditProduct = async (product) => {
     const productId = product.id_producto;
     try {
-      const productDetails = await getProductById(productId,product);
+      const productDetails = await getProductById(productId, product);
       setProductoAEditar(productDetails);
-      setIsEditFormVisible(true);
+      setIsEditFormProductoVisible(true);
+      setIsTableProductoVisible(false)
+      setIsTableCategoriaVisible(false)
     } catch (error) {
       console.error("Error al obtener los detalles del producto:", error);
     }
   };
 
   const handleEditCategoria = async (categoria) => {
-    const categoriaId = categoria.id_producto;
+    const tipProductId = categoria.id_tipo_producto;
     try {
-      const categoriaDetails = await getTipoProductoById(categoriaId,categoria);
-      setProductoAEditar(categoriaDetails);
-      setIsEditFormVisible(true);
+      const tipoProductDetails = await getTipoProductoById(
+        tipProductId,
+        categoria
+      );
+      setCategoriaAEditar(tipoProductDetails);
+      setIsEditFormCategoriaVisible(true);
+      setIsTableProductoVisible(false)
+      setIsTableCategoriaVisible(false)
     } catch (error) {
-      console.error("Error al obtener los detalles del producto:", error);
+      console.error(
+        "Error al obtener los detalles del tipo de producto:",
+        error
+      );
     }
   };
 
-  const handleShowForm = () => {
-    setIsFormVisible(true);
+  const handleDeleteProduct = async (productId) => {
+    try {
+      await removeProduct(productId);
+      fetchProducts();
+      showSuccessDialog("Producto borrado correctamente.");
+    } catch (error) {
+      console.error("Error al quitar producto:", error);
+    }
   };
 
-  const handleCloseForm = () => {
-    setIsFormVisible(false);
-    // Opcional: Resetear el estado del formulario si lo deseas
-    setNewProduct({
-      /* ... estado inicial ... */
-    });
+  const handleDeleteCategoria = async (categoriatId) => {
+    try {
+      await removeCategoria(categoriatId);
+      fetchTipoProducts();
+      showSuccessDialog("categoria borrada correctamente.");
+    } catch (error) {
+      console.error("Error al quitar categoria:", error);
+    }
+  };
+
+  const handleInicial = () => {
+    setIsTableCategoriaVisible(true)
+    setIsTableProductoVisible(true)
+  };
+
+  const handleShowFormProducto = () => {
+    setIsFormProductoVisible(true);
+    setIsTableProductoVisible(false)
+    setIsTableCategoriaVisible(false)
+    setIsFormCategoriaVisible(false);
+  };
+  const handleShowFormCategoria = () => {
+    setIsFormCategoriaVisible(true);
+    setIsFormProductoVisible(false);
+    setIsTableProductoVisible(false)
+    setIsTableCategoriaVisible(false)
+  };
+
+  const handleCloseFormProducto = () => {
+    setIsFormProductoVisible(false);
+    setIsTableProductoVisible(true)
+    setIsTableCategoriaVisible(true)
+    setIsFormCategoriaVisible(false);
+    setIsEditFormProductoVisible(false);
+    setNewProduct({});
     setErrorMessage("");
   };
 
-  const fetchProductById = async (productId) => {
-    try {
-      const productsByIdData = await getProductById(productId);
-      setProductStats(productsByIdData);
-    } catch (error) {
-      console.error("Error al obtener el producto:", error);
-    }
+  const handleCloseFormCategoria = () => {
+    setIsFormProductoVisible(false);
+    setIsFormCategoriaVisible(false);
+    setIsTableProductoVisible(true)
+    setIsTableCategoriaVisible(true)
+    setIsEditFormCategoriaVisible(false);
+    setNewCategoria({});
+    setErrorMessage("");
   };
+
+  const handleCloseEditFormProducto = () => {
+    setIsEditFormProductoVisible(false);
+    setIsTableProductoVisible(true)
+    setIsTableCategoriaVisible(true)
+    setProductoAEditar(null);
+  };
+
 
   const fetchTipoProducts = async () => {
     try {
       const tipoProductsData = await getAllTipoProducto();
-      setTipoProductosStats(tipoProductsData);
+      setCategorias(tipoProductsData);
     } catch (error) {
       console.error("Error al obtener tipo de productos:", error);
     }
@@ -197,7 +248,7 @@ const AdminDashboard = () => {
 
   const fetchRecargasStats = async () => {
     try {
-      const statsData = await getRecargasStatistics(period);
+      const statsData = await getRecargasStatistics(periodRecargas);
       setRecargasStats(statsData);
     } catch (error) {
       console.error("Error al obtener estadísticas de recargas:", error);
@@ -206,7 +257,7 @@ const AdminDashboard = () => {
 
   const fetchProductosStats = async () => {
     try {
-      const statsData = await getProductosStatistics(period);
+      const statsData = await getProductosStatistics(periodProducto);
       setProductosStats(statsData);
     } catch (error) {
       console.error("Error al obtener estadísticas de productos:", error);
@@ -223,6 +274,7 @@ const AdminDashboard = () => {
   };
 
   useEffect(() => {
+    handleInicial()
     fetchProducts();
     fetchStatistics();
     fetchRecargasStats();
@@ -230,336 +282,239 @@ const AdminDashboard = () => {
     fetchAdmins();
     fetchTipoProducts();
     fetchPlataformas();
-  }, [period, idAdmin]);
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewProduct({ ...newProduct, [name]: value });
-  };
-
-  const handleTipoProductoChange = (event) => {
-    setNewProduct((prevState) => ({
-      ...prevState,
-      id_tipo_producto: event.target.value,
-    }));
-  };
-
-  const handlePlatafromaChange = (event) => {
-    setNewProduct((prevState) => ({
-      ...prevState,
-      id_plataforma: event.target.value,
-    }));
-  };
-
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result;
-        // Divide la cadena en la coma y toma la segunda parte
-        const base64Data = base64String.split(",")[1];
-        setNewProduct((prevState) => ({
-          ...prevState,
-          imagen: base64Data, // Guarda solo la parte de los datos Base64
-        }));
-      };
-      reader.readAsDataURL(file);
-    } else {
-      setNewProduct((prevState) => ({
-        ...prevState,
-        imagen: null,
-      }));
-    }
-  };
-
-  const handleAddProduct = async () => {
-    const {
-      nom_producto,
-      precio_producto,
-      id_plataforma,
-      id_tipo_producto,
-      correo_asociado,
-      pass_asociada,
-      imagen,
-      estado,
-    } = newProduct;
-
-    // Verificación de campos vacíos
-    let hasError = false;
-    let errorMessage = "";
-
-    if (!nom_producto?.trim()) {
-      errorMessage = "El nombre del producto es obligatorio.";
-      hasError = true;
-    } else if (!precio_producto?.trim()) {
-      errorMessage = "El precio del producto es obligatorio.";
-      hasError = true;
-    } else if (!id_plataforma) {
-      errorMessage = "La plataforma es obligatoria.";
-      hasError = true;
-    } else if (!id_tipo_producto) {
-      errorMessage = "El tipo de producto es obligatorio.";
-      hasError = true;
-    } else if (!correo_asociado?.trim()) {
-      errorMessage = "El correo asociado es obligatorio.";
-      hasError = true;
-    } else if (!pass_asociada?.trim()) {
-      errorMessage = "La contraseña asociada es obligatoria.";
-      hasError = true;
-    } else if (!imagen) {
-      errorMessage = "La imagen del producto es obligatoria.";
-      hasError = true;
-    }
-
-    if (hasError) {
-      setErrorMessage(errorMessage);
-      return;
-    }
-
-    try {
-      const addedProduct = await addProduct(newProduct);
-      setProducts([...products, addedProduct]);
-      setNewProduct({
-        nom_producto: "",
-        precio_producto: "",
-        id_plataforma: "",
-        id_tipo_producto: "",
-        correo_asociado: "",
-        pass_asociada: "",
-        imagen: null,
-        estado: 1,
-      });
-      setErrorMessage("");
-      alert("Producto guardado exitosamente.");
-    } catch (error) {
-      console.error("Error al añadir producto:", error);
-      setErrorMessage(
-        "Error al añadir el producto. Por favor, inténtelo de nuevo."
-      );
-      alert("Error al añadir el producto. Por favor, inténtelo de nuevo.");
-    }
-  };
-
-  const handleRemoveProduct = async (productId) => {
-    try {
-      await removeProduct(productId);
-      setProducts(products.filter((p) => p._id !== productId));
-    } catch (error) {
-      console.error("Error al quitar producto:", error);
-    }
-  };
-
-  const handleDeleteProduct = async (productId) => {
-    try {
-      await removeProduct(productId);
-      //actualizar los productos
-      fetchProducts();
-      alert("Producto borrado correctamente.");
-    } catch (error) {
-      console.error("Error al quitar producto:", error);
-    }
-  };
-
-  const handleDeleteCategoria = async (categoriaId) => {
-    try {
-      await removeCategoria(categoriaId);
-      fetchTipoProducts();
-      alert("Categoria borrada correctamente.");
-    } catch (error) {
-      console.error("Error al quitar categoria:", error);
-    }
-  };
+  }, [periodRecargas, periodProducto, idAdmin]);
 
   return (
-    <Container sx={{ justifyContent: "center" }}>
-      <Typography variant="h4" gutterBottom>
-        Panel de Administración
-      </Typography>
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
-          <Paper elevation={3} style={{ padding: "16px" }}>
-            <Typography variant="h5" gutterBottom>
-              Estadísticas
-            </Typography>
-            <Typography variant="body1">
-              Ventas Anuales: {statistics.totalCompras}
-            </Typography>
-            <Typography variant="body1">
-              Recargas Anuales: {statistics.totalRecargas}
-            </Typography>
-          </Paper>
-        </Grid>
-
-        <Grid
-          item
-          xs={12}
-          md={12}
-          sx={{ display: "flex", justifyContent: "center" }}
-        >
-          {isFormVisible && (
-            <ProductoFormulario
-              newProduct={newProduct}
-              handleInputChange={handleInputChange}
-              handlePlatafromaChange={handlePlatafromaChange}
-              handleTipoProductoChange={handleTipoProductoChange}
-              handleImageChange={handleImageChange}
-              handleAddProduct={handleAddProduct}
-              plataformasStats={plataformasStats}
-              tipoProductosStats={tipoProductosStats}
-              errorMessage={errorMessage}
-              onCloseForm={handleCloseForm}
-            />
-          )}
-        </Grid>
-
-        <Grid
-          item
-          xs={12}
-          md={12}
-          sx={{ display: "flex", justifyContent: "center" }}
-        >
-          {isEditFormVisible && productoAEditar && (
-            <ProductoEditarFormulario
-              producto={productoAEditar}
-              handleNameInputChange={handleEditNameInputChange}
-              handlePriceInputChange={handleEditPriceInputChange}
-              handlePlataformaChange={handleEditPlataformaChange}
-              handleTipoProductoChange={handleEditTipoProductoChange}
-              handleCorreoAsociadoChange={handleEditCorreoAsociadoChange}
-              handlePasswordAsociadoChange={handleEditPasswordAsociadoChange}
-              handleImageChange={handleEditImageChange}
-              plataformasStats={plataformasStats}
-              tipoProductosStats={tipoProductosStats}
-              errorMessage={errorMessage}
-              onCloseEditForm={handleCloseEditForm}
-              handleGuardarCambios={handleGuardarCambios}
-            />
-          )}
-        </Grid>
-
-        {!isFormVisible && !isEditFormVisible && (
-          <Grid item xs={12}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleShowForm}
-            >
-              Añadir Producto +
-            </Button>
-          </Grid>
-        )}
-
-        {!isFormVisible && !isEditFormVisible && (
+    <>
+      <Container sx={{ justifyContent: "center" }}>
+        <Typography variant="h4" gutterBottom>
+          Panel de Administración
+        </Typography>
+        <Grid container spacing={3}>
           <Grid item xs={12}>
             <Paper elevation={3} style={{ padding: "16px" }}>
               <Typography variant="h5" gutterBottom>
-                Lista de Productos
+                Estadísticas
               </Typography>
-              <ProductosTabla
-                products={products}
-                onEdit={handleEditProduct}
-                onDelete={handleDeleteProduct}
-              />
+              <Typography variant="body1">
+                Ventas Anuales: {statistics.totalCompras}
+              </Typography>
+              <Typography variant="body1">
+                Recargas Anuales: {statistics.totalRecargas}
+              </Typography>
             </Paper>
           </Grid>
-        )}
 
-        {/* {!isFormVisible && !isEditFormVisible && (
-          <Grid item xs={12}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleShowForm}
-            >
-              Añadir Categoria +
-            </Button>
+          {isTableProductoVisible && (
+            <Grid item xs={12}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleShowFormProducto}
+              >
+                Añadir Producto +
+              </Button>
+            </Grid>
+          )}
+
+          {isTableProductoVisible && (
+            <Grid item xs={12}>
+              <Paper elevation={3} style={{ padding: "16px" }}>
+                <Typography variant="h5" gutterBottom>
+                  Lista de Productos
+                </Typography>
+                <ProductosTabla
+                  products={products}
+                  plataformas={plataformasStats}
+                  tiposProducto={categorias}
+                  onEdit={handleEditProduct}
+                  onDelete={handleDeleteProduct}
+                  onReload={fetchProducts}
+                />
+              </Paper>
+            </Grid>
+          )}
+
+          <Grid
+            item
+            xs={12}
+            md={12}
+            sx={{ display: "flex", justifyContent: "center" }}
+          >
+            {isFormProductoVisible && (
+              <ProductoFormulario
+                plataformasStats={plataformasStats}
+                tipoProductosStats={categorias}
+                onCloseForm={handleCloseFormProducto}
+                onProductAdded={fetchProducts}
+                onInicial={handleInicial}
+              />
+            )}
           </Grid>
-        )}
 
-        {!isFormVisible && !isEditFormVisible && (
+          <Grid
+            item
+            xs={12}
+            md={12}
+            sx={{ display: "flex", justifyContent: "center" }}
+          >
+            {isEditFormProductoVisible && productoAEditar && (
+              <ProductoEditarFormulario
+                producto={productoAEditar}
+                plataformasStats={plataformasStats}
+                tipoProductosStats={categorias}
+                errorMessage={errorMessage}
+                onCloseEditForm={handleCloseEditFormProducto}
+                handleGuardarCambios={handleGuardarEditProducto}
+              />
+            )}
+          </Grid>
+
+           {isTableCategoriaVisible && (
+              <Grid item xs={12}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleShowFormCategoria}
+                >
+                  Añadir Categoria +
+                </Button>
+              </Grid>
+            )}
+
+            {isTableCategoriaVisible && (
+              <Grid item xs={12}>
+                <Paper elevation={3} style={{ padding: "16px" }}>
+                  <Typography variant="h5" gutterBottom>
+                    Lista de Categorias
+                  </Typography>
+                  <CategoriasTabla
+                    categorias={categorias}
+                    onEdit={handleEditCategoria}
+                    onDelete={handleDeleteCategoria}
+                    onReload={fetchTipoProducts}
+                  />
+                </Paper>
+              </Grid>
+            )}
+
+            <Grid
+              item
+              xs={12}
+              md={12}
+              sx={{ display: "flex", justifyContent: "center" }}
+            >
+              {isFormCategoriaVisible && (
+                <CategoriaFormulario
+                  onCloseForm={handleCloseFormCategoria}
+                  onCategoriaAdded={fetchTipoProducts}
+                />
+              )}
+            </Grid>
+
+          <Grid
+            item
+            xs={12}
+            md={12}
+            sx={{ display: "flex", justifyContent: "center" }}
+          >
+            {isEditFormCategoriaVisible && categoriaAEditar && (
+              <CategoriaEditarFormulario
+                categoria={categoriaAEditar}
+                plataformasStats={plataformasStats}
+                errorMessage={errorMessage}
+                onCloseEditForm={handleCloseFormCategoria}
+                handleGuardarCambios={handleGuardarEditCategoria}
+              />
+            )}
+          </Grid>
+
           <Grid item xs={12}>
             <Paper elevation={3} style={{ padding: "16px" }}>
               <Typography variant="h5" gutterBottom>
-                Lista de Categorias
+                Estadísticas de Recargas
               </Typography>
-              <CategoriasTabla
-                categorias={categorias}
-                onEdit={handleEditCategoria}
-                onDelete={handleDeleteProduct}
-              />
-            </Paper>
-          </Grid>
-        )} */}
-
-        <Grid item xs={12}>
-          <Paper elevation={3} style={{ padding: "16px" }}>
-            <Typography variant="h5" gutterBottom>
-              Estadísticas de Recargas
-            </Typography>
-            <Select value={period} onChange={(e) => setPeriod(e.target.value)}>
-              <MenuItem value="daily">Hoy</MenuItem>
-              <MenuItem value="weekly">En la ultima semana</MenuItem>
-              <MenuItem value="monthly">En el ultimo mes</MenuItem>
-            </Select>
-            <List>
-              <ListItem>
-                <ListItemText
-                  primary={`Total de Recargas: ${recargasStats.totalRecargas}`}
-                />
-              </ListItem>
-              <ListItem>
-                <ListItemText
-                  primary={`Suma de Montos Recargados: $${recargasStats.sumaMontoRecargado}`}
-                />
-              </ListItem>
-            </List>
-          </Paper>
-        </Grid>
-
-        <Grid item xs={12}>
-          <Paper elevation={3} style={{ padding: "16px" }}>
-            <Typography variant="h5" gutterBottom>
-              Estadísticas de Productos Vendidos
-            </Typography>
-            <Select value={period} onChange={(e) => setPeriod(e.target.value)}>
-              <MenuItem value="daily">Hoy</MenuItem>
-              <MenuItem value="weekly">En la ultima semana</MenuItem>
-              <MenuItem value="monthly">En el ultimo mes</MenuItem>
-            </Select>
-            <List>
-              <ListItem>
-                <ListItemText
-                  primary={`Total de Productos: ${productosStats.totalProductosVendidos}`}
-                />
-              </ListItem>
-              <ListItem>
-                <ListItemText
-                  primary={`Suma de Montos de ventas de productos: $${productosStats.sumaMontoProductosVendidos}`}
-                />
-              </ListItem>
-            </List>
-          </Paper>
-        </Grid>
-
-        <Grid item xs={12}>
-          <Paper elevation={3} style={{ padding: "16px" }}>
-            <Typography variant="h5" gutterBottom>
-              Administradores Registrados
-            </Typography>
-            <List>
-              {admins.map((admin) => (
-                <ListItem key={admin.id_admin}>
+              <Select
+                value={periodRecargas}
+                onChange={(e) => setPeriodRecargas(e.target.value)}
+              >
+                <MenuItem value="daily">Hoy</MenuItem>
+                <MenuItem value="weekly">En la ultima semana</MenuItem>
+                <MenuItem value="monthly">En el ultimo mes</MenuItem>
+              </Select>
+              <List>
+                <ListItem>
                   <ListItemText
-                    primary={`Nombre: ${admin.nom_admin}, Correo: ${admin.email_admin}`}
+                    primary={`Total de Recargas: ${recargasStats.totalRecargas}`}
                   />
                 </ListItem>
-              ))}
-            </List>
-          </Paper>
+                <ListItem>
+                  <ListItemText
+                    primary={`Suma de Montos Recargados: $${recargasStats.sumaMontoRecargado}`}
+                  />
+                </ListItem>
+              </List>
+            </Paper>
+          </Grid>
+
+          <Grid item xs={12}>
+            <Paper elevation={3} style={{ padding: "16px" }}>
+              <Typography variant="h5" gutterBottom>
+                Estadísticas de Productos Vendidos
+              </Typography>
+              <Select
+                value={periodProducto}
+                onChange={(e) => setPeriodProducto(e.target.value)}
+              >
+                <MenuItem value="daily">Hoy</MenuItem>
+                <MenuItem value="weekly">En la ultima semana</MenuItem>
+                <MenuItem value="monthly">En el ultimo mes</MenuItem>
+              </Select>
+              <List>
+                <ListItem>
+                  <ListItemText
+                    primary={`Total de Productos: ${productosStats.totalProductosVendidos}`}
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemText
+                    primary={`Suma de Montos de ventas de productos: $${productosStats.sumaMontoProductosVendidos}`}
+                  />
+                </ListItem>
+              </List>
+            </Paper>
+          </Grid>
+
+          <Grid item xs={12}>
+            <Paper elevation={3} style={{ padding: "16px" }}>
+              <Typography variant="h5" gutterBottom>
+                Administradores Registrados
+              </Typography>
+              <List>
+                {admins.map((admin) => (
+                  <ListItem key={admin.id_admin}>
+                    <ListItemText
+                      primary={`Nombre: ${admin.nom_admin}, Correo: ${admin.email_admin}`}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </Paper>
+          </Grid>
         </Grid>
-      </Grid>
-    </Container>
+      </Container>
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+        <DialogTitle>Mensaje</DialogTitle>
+        <DialogContent>
+          <DialogContentText>{dialogMessage}</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDialog(false)} autoFocus>
+            Cerrar
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 };
 

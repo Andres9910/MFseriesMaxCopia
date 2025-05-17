@@ -1,8 +1,16 @@
 const TipoProduct = require('../models/TipoProducto');
+const { Sequelize } = require('sequelize');
 
 exports.getAllTipoProducto = async (req, res) => {
   try {
-    const tipoProducts = await TipoProduct.findAll();
+    const { Op } = require("sequelize");
+    const tipoProducts = await TipoProduct.findAll({
+      where:{
+        estado: {
+          [Op.in]: [1, 3]
+        }
+      }
+    });
     res.json(tipoProducts);
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener los tipos de producto: ', error });
@@ -24,20 +32,36 @@ exports.getTipoProductoById = async (req, res) => {
 
 exports.createTipoProduct = async (req, res) => {
     try {
-        const { desc_producto } = req.body;
-        // const imagen = req.file ? req.file.buffer : null;
+        const { desc_producto, estado } = req.body;
 
-        if (!desc_producto) {
-            return res.status(400).json({ error: 'Todos los campos son obligatorios.' });
+        // Normalizar nombre para evitar errores por espacios o mayúsculas
+        const nombreNormalizado = desc_producto.trim().toLowerCase();
+
+        // Validar si ya existe un registro con ese nombre
+        const existente = await TipoProduct.findOne({
+            where: Sequelize.where(
+                Sequelize.fn('lower', Sequelize.col('desc_producto')),
+                nombreNormalizado
+            )
+        });
+
+        if (existente) {
+            return res.status(409).json({ error: 'La categoría ya existe' });
         }
 
         const newTipoProduct = await TipoProduct.create({
-            desc_producto
+            desc_producto: nombreNormalizado,
+            estado
         });
 
         res.status(201).json(newTipoProduct);
     } catch (error) {
-        res.status(500).json({ error: 'Error al crear el producto: ', error });
+        console.error(error);
+        if (error.name === 'SequelizeUniqueConstraintError') {
+            return res.status(409).json({ error: 'Ya existe una categoría con ese nombre' });
+        }
+
+        res.status(500).json({ error: 'Error al crear la categoría', detalle: error.message });
     }
 };
 
@@ -47,16 +71,18 @@ exports.updateTipoProduct = async (req, res) => {
     const idProduct = tipoProduct.id_tipo_producto;
 
     const {
-      desc_producto
+      desc_producto,
+      estado
     } = req.body;
 
-    await product.update({
-      desc_producto
+    await tipoProduct.update({
+      desc_producto,
+      estado
     });
 
     res.json(tipoProduct);
   } catch (error) {
-    res.status(500).json({ error: 'Error al actualizar el tipo producto: ', error });
+    res.status(500).json({ error: 'Error al actualizar la categoria: ', error });
   }
 };
 
@@ -65,16 +91,16 @@ exports.deactivateTipoProduct = async (req, res) => {
         const tipoProductId = req.params.id;
         const tipoProduct = await TipoProduct.findByPk(tipoProductId);
 
-        if (!product) {
-            return res.status(404).json({ error: 'Producto no encontrado.' });
+        if (!tipoProduct) {
+            return res.status(404).json({ error: 'categoria no encontrada.' });
         }
 
         tipoProduct.estado = 2;
         await tipoProduct.save();
 
-        res.json({ message: 'Estado del producto actualizado correctamente.', tipoProduct });
+        res.json({ message: 'Estado de la categoria actualizada correctamente.', tipoProduct });
     } catch (error) {
-        console.error('Error al actualizar el estado del producto:', error);
-        res.status(500).json({ error: 'Error al actualizar el estado del producto.' });
+        console.error('Error al actualizar el estado de la categoria:', error);
+        res.status(500).json({ error: 'Error al actualizar el estado de la categoria.' });
     }
 };

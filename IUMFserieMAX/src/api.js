@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 //para local
-// const API_URL = 'http://localhost:4000/api'; // Cambia esto a la URL de tu backend
+//const API_URL = 'http://localhost:4000/api'; // Cambia esto a la URL de tu backend
 // para despliegue en internet
 const API_URL = 'https://apimfseriemax.onrender.com/api'; // Cambia esto a la URL de tu backend
 
@@ -346,21 +346,42 @@ export const getAllPlataformas = async () => {
 };
 
 export const getTipoProductoById = async (categoriaId) => {
+  console.log("categoriaId: ", categoriaId)
   try {
     const response = await axios.get(`${API_URL}/tipoProducto/${categoriaId}`);
     return response.data;
   } catch (error) {
-    console.error('Error al obtener la categoria:', error);
+    console.error('Error al obtener el tipo de producto: ', error);
     throw error;
   }
 };
 
 export const removeCategoria = async (categoriaId) => {
   try {
-    const response = await axios.put(`${API_URL}/tipoProducto/deactivateProduct/${categoriaId}`);
+    const response = await axios.put(`${API_URL}/tipoProducto/deactivateTipoProduct/${categoriaId}`);
     return response.data;
   } catch (error) {
     console.error('Error al quitar categoria:', error);
+    throw error;
+  }
+};
+
+export const updateCategoria = async (categoriaId, categoriaData) => {
+  try {
+    const response = await axios.put(`${API_URL}/tipoProducto/${categoriaId}`, categoriaData);
+    return response.data;
+  } catch (error) {
+    console.error('Error al actualizar la categoria:', error);
+    throw error;
+  }
+};
+
+export const addCategoria = async (categoriaData) => {
+  try {
+    const response = await axios.post(`${API_URL}/tipoProducto`, categoriaData);
+    return response.data;
+  } catch (error) {
+    console.error('Error al añadir la categoria:', error);
     throw error;
   }
 };

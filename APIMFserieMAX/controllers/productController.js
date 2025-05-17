@@ -1,15 +1,19 @@
 const Product = require('../models/Producto');
+const { Sequelize } = require('sequelize');
 
 exports.getAllProducts = async (req, res) => {
     try {
         const { page = 1, limit = 100 } = req.query;
         const offset = (page - 1) * limit;
+        const { Op } = require("sequelize");
 
         const products = await Product.findAll({
             limit,
             offset,
             where: {
-                estado: 1
+                estado: {
+                    [Op.in]: [1, 3]
+                }
             }
         });
 
@@ -38,17 +42,27 @@ exports.getProductById = async (req, res) => {
 
         res.json(productWithImage);
     } catch (error) {
-        res.status(500).json({ error: 'Error al obtener el producto.' });
+        res.status(500).json({ error: 'Error al obtener el producto.', error });
     }
 };
 
 exports.createProduct = async (req, res) => {
     try {
-        const { nom_producto, precio_producto, id_plataforma, id_tipo_producto, imagen, correo_asociado, password_asociado } = req.body;
-        // const imagen = req.file ? req.file.buffer : null;
+        const { nom_producto, precio_producto, id_plataforma, id_tipo_producto, imagen, estado, correo_asociado, password_asociado } = req.body;
 
-        if (!nom_producto || !precio_producto || !id_plataforma || !id_tipo_producto || !imagen) {
-            return res.status(400).json({ error: 'Todos los campos son obligatorios.' });
+        // Normalizar nombre para evitar errores por espacios o mayúsculas
+        const nombreNormalizado = nom_producto.trim().toLowerCase();
+
+        // Validar si ya existe un registro con ese nombre
+        const existente = await Product.findOne({
+            where: Sequelize.where(
+                Sequelize.fn('lower', Sequelize.col('nom_producto')),
+                nombreNormalizado
+            )
+        });
+
+        if (existente) {
+            return res.status(409).json({ error: 'El producto ya existe' });
         }
 
         const newProduct = await Product.create({
@@ -57,13 +71,18 @@ exports.createProduct = async (req, res) => {
             id_plataforma,
             id_tipo_producto,
             imagen,
+            estado,
             correo_asociado,
             password_asociado
         });
 
         res.status(201).json(newProduct);
     } catch (error) {
-        res.status(500).json({ error: 'Error al crear el producto.' });
+        console.error(error);
+        if (error.name === 'SequelizeUniqueConstraintError') {
+            return res.status(409).json({ error: 'Ya existe un producto con ese nombre' });
+        }
+        res.status(500).json({ error: 'Error al crear el producto.', detalle: error.message });
     }
 };
 
@@ -76,20 +95,23 @@ exports.updateProduct = async (req, res) => {
       nom_producto,
       precio_producto,
       id_plataforma,
-      id_tipo_producto,
+      id_producto,
+      imagen,
+      estado,
       correo_asociado,
-      pass_asociada,
-      imagen
+      password_asociado,
+      
     } = req.body;
 
     await product.update({
       nom_producto,
       precio_producto,
       id_plataforma,
-      id_tipo_producto,
-      correo_asociado,
-      pass_asociada,
+      id_producto,
       imagen,
+      estado,
+      correo_asociado,
+      password_asociado,
     });
 
     res.json(product);
@@ -98,7 +120,6 @@ exports.updateProduct = async (req, res) => {
   }
 };
 
-// En tu archivo de controladores de productos (productController.js)
 exports.deactivateProduct = async (req, res) => {
     try {
         const productId = req.params.id;

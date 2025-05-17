@@ -9,7 +9,11 @@ const sequelize = require('../config/database');
       desc_producto: {
         type: DataTypes.STRING(100),
         allowNull: false
-      }
+      },
+      estado: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+      },
     }, {
       tableName: 'tipo_producto',
       timestamps: false
