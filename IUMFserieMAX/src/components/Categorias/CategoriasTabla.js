@@ -174,7 +174,7 @@ function CategoriasTabla({ categorias, onEdit, onDelete, onReload }) {
           <DialogTitle>¿Confirmar eliminación?</DialogTitle>
           <DialogContent>
             <DialogContentText>
-              ¿Estás seguro de que deseas eliminar este producto? Esta acción no
+              ¿Estás seguro de que deseas eliminar esta categoria? Esta acción no
               se puede deshacer.
             </DialogContentText>
           </DialogContent>

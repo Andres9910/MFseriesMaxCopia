@@ -45,15 +45,31 @@ exports.getAllCompras = async (req, res) => {
                 { model: Usuario, attributes: ['nom_usuario'] },
                 { model: Producto, attributes: ['nom_producto', 'precio_producto'] }
             ],
-            limit,
-            offset,
+            order: [['cantidad', 'DESC']],
+            limit: parseInt(limit),
+            offset: parseInt(offset),
         });
 
-        res.status(200).json(compras);
+        // Reformatear los resultados
+        const comprasFormateadas = compras.map(compra => ({
+            id_compra: compra.id_compra,
+            id_usuario: compra.id_usuario,
+            id_producto: compra.id_producto,
+            cantidad: compra.cantidad,
+            fecha_compra: compra.fecha_compra,
+            precio_total: compra.precio_total,
+            nom_usuario: compra.Usuario?.nom_usuario,
+            nom_producto: compra.Producto?.nom_producto,
+            precio_producto: compra.Producto?.precio_producto
+        }));
+
+        res.status(200).json(comprasFormateadas);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: 'Error al obtener las compras.' });
     }
 };
+
 
 exports.getCompraById = async (req, res) => {
     try {

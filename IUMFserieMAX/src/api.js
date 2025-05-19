@@ -1,9 +1,9 @@
 import axios from 'axios';
 
 //para local
-//const API_URL = 'http://localhost:4000/api'; // Cambia esto a la URL de tu backend
+const API_URL = 'http://localhost:4000/api'; // Cambia esto a la URL de tu backend
 // para despliegue en internet
-const API_URL = 'https://apimfseriemax.onrender.com/api'; // Cambia esto a la URL de tu backend
+//const API_URL = 'https://apimfseriemax.onrender.com/api'; // Cambia esto a la URL de tu backend
 
 // Funciones para Administrador
 export const createAdmin = async (adminData) => {
@@ -382,6 +382,46 @@ export const addCategoria = async (categoriaData) => {
     return response.data;
   } catch (error) {
     console.error('Error al añadir la categoria:', error);
+    throw error;
+  }
+};
+
+export const getAllUsuarios = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/users`);
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener todos los usuarios:', error);
+    throw error;
+  }
+};
+
+export const updateUser = async (userId, userData) => {
+  try {
+    const response = await axios.put(`${API_URL}/users/${userId}`, userData);
+    return response.data;
+  } catch (error) {
+    console.error('Error al actualizar usuario:', error);
+    throw error;
+  }
+};
+
+export const updateUserByDesactivate = async (userId, userData) => {
+  try {
+    const response = await axios.put(`${API_URL}/users/updateUserByDesactivate/${userId}`, userData);
+    return response.data;
+  } catch (error) {
+    console.error('Error al desactivar el usuario:', error);
+    throw error;
+  }
+};
+
+export const removeUser = async (usertId) => {
+  try {
+    const response = await axios.put(`${API_URL}/users/deleteUserByEstado/${usertId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error al quitar usuario:', error);
     throw error;
   }
 };

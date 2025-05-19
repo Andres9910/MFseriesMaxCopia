@@ -1,6 +1,7 @@
 const Usuario = require('../models/Usuario');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { Sequelize } = require('sequelize');
 
 exports.registerUser = async (req, res) => {
     const { nom_usuario, pass_usuario } = req.body;
@@ -83,6 +84,7 @@ exports.getUserById = async (req, res) => {
 };
 
 exports.getAllUsers = async (req, res) => {
+    const { Op } = require("sequelize");
     try {
         const { page = 1, limit = 10 } = req.query;
         const offset = (page - 1) * limit;
@@ -91,11 +93,19 @@ exports.getAllUsers = async (req, res) => {
             attributes: { exclude: ['pass_usuario'] },
             limit,
             offset,
+            where: {
+                estado: {
+                    [Op.in]: [1, 3]
+                },
+                rol: {
+                    [Op.in]: [1, 2]
+                }
+            }
         });
 
         res.json(users);
     } catch (error) {
-        res.status(500).json({ error: 'Error al obtener los usuarios.' });
+        res.status(500).json({ error: 'Error al obtener los usuarios: ', error });
     }
 };
 
@@ -134,4 +144,52 @@ exports.deleteUser = async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: 'Error al eliminar el usuario.' });
     }
+};
+
+exports.deleteUserByEstado = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const user = await Usuario.findByPk(userId);
+
+        console.log("user: ", user)
+
+        if (!user) {
+            return res.status(404).json({ error: 'Usuario no encontrado.' });
+        }
+
+        user.estado = 2;
+        await user.save();
+
+        res.json({ message: 'Estado del usuario actualizado correctamente.', user });
+    } catch (error) {
+        console.error('Error al actualizar el estado del usuario:', error);
+        res.status(500).json({ error: 'Error al actualizar el estado del usuario.' });
+    }
+};
+
+exports.updateUserByDesactivate = async (req, res) => {
+  try {
+    const user = await Usuario.findByPk(req.params.id);
+    const idUser = user.id_usuario;
+
+    const {
+      nom_usuario,
+      saldo_asociado,
+      fecha_registro,
+      rol,
+      estado
+    } = req.body;
+
+    await user.update({
+      nom_usuario,
+      saldo_asociado,
+      fecha_registro,
+      rol,
+      estado
+    });
+
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al actualizar el usuario: ', error });
+  }
 };

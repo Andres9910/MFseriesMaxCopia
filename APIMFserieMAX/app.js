@@ -7,7 +7,7 @@ const sequelize = require('./config/database');
 // Lista de orígenes permitidos
 const allowedOrigins = [
   'http://localhost:3000', // Para desarrollo local
-  'https://iumfseriemax.onrender.com', // El origen de tu frontend en Render
+  //'https://iumfseriemax.onrender.com', // El origen de tu frontend en Render
 ];
 
 // Configurar CORS con opciones

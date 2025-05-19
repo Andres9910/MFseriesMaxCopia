@@ -7,9 +7,9 @@ export const Productos = () => {
   const [products, setProducts] = useState([]);
 
   //para local
-  // const API_URL = "http://localhost:4000"
+  const API_URL = "http://localhost:4000"
   //para despliegue en internet
-  const API_URL = "https://apimfseriemax.onrender.com"
+  //const API_URL = "https://apimfseriemax.onrender.com"
 
   useEffect(() => {
     const fetchProducts = async () => {
