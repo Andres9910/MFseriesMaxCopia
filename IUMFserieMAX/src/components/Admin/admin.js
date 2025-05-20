@@ -12,7 +12,10 @@ import {
   updateProduct,
   getTipoProductoById,
   removeCategoria,
-  updateCategoria
+  updateCategoria,
+  getAllUsuarios,
+  removeUser,
+  getAllCompras
 } from "./../../api";
 import {
   Container,
@@ -38,6 +41,8 @@ import CategoriaFormulario from "../Categorias/CategoriaFormulario";
 import ProductoEditarFormulario from "../Products/ProductoEditarFormulario";
 import CategoriasTabla from "../Categorias/CategoriasTabla";
 import CategoriaEditarFormulario from "../Categorias/CategoriaEditarFormulario";
+import UsuariosTabla from "../Usuarios/UsuariosTablas";
+import ComprasTabla from "../Compras/ComprasTabla"
 
 const AdminDashboard = () => {
   const [openDialog, setOpenDialog] = useState(false);
@@ -45,6 +50,9 @@ const AdminDashboard = () => {
 
   const { idAdmin } = useParams();
   const [products, setProducts] = useState([]);
+  const [categorias, setCategorias] = useState([]);
+  const [usuarios, setUsuarios] = useState([]);
+  const [compras, setCompras] = useState([]);
   const [newProduct, setNewProduct] = useState({});
   const [newCategoria, setNewCategoria] = useState({});
   const [statistics, setStatistics] = useState({
@@ -57,16 +65,17 @@ const AdminDashboard = () => {
   const [periodProducto, setPeriodProducto] = useState("daily");
   const [admins, setAdmins] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
-  const [categorias, setCategorias] = useState([]);
   const [plataformasStats, setPlatafromasStats] = useState([]);
   const [isFormProductoVisible, setIsFormProductoVisible] = useState(false);
   const [isFormCategoriaVisible, setIsFormCategoriaVisible] = useState(false);
   const [isTableProductoVisible, setIsTableProductoVisible] = useState(false);
   const [isTableCategoriaVisible, setIsTableCategoriaVisible] = useState(false);
+  const [isTableUsuarioVisible, setIsTableUsuarioVisible] = useState(false);
+  const [isTableComprasVisible, setIsTableComprasVisible] = useState(false);
   const [isEditFormProductoVisible, setIsEditFormProductoVisible] = useState(false);
   const [isEditFormCategoriaVisible, setIsEditFormCategoriaVisible] = useState(false);
   const [productoAEditar, setProductoAEditar] = useState(null);
-    const [categoriaAEditar, setCategoriaAEditar] = useState(null);
+  const [categoriaAEditar, setCategoriaAEditar] = useState(null);
   const [tipoProductoAEditar, setTipoProductoAEditar] = useState(null);
 
   const showSuccessDialog = (message) => {
@@ -120,6 +129,8 @@ const AdminDashboard = () => {
       setIsEditFormProductoVisible(true);
       setIsTableProductoVisible(false)
       setIsTableCategoriaVisible(false)
+      setIsTableUsuarioVisible(false)
+      setIsTableComprasVisible(false)
     } catch (error) {
       console.error("Error al obtener los detalles del producto:", error);
     }
@@ -136,6 +147,8 @@ const AdminDashboard = () => {
       setIsEditFormCategoriaVisible(true);
       setIsTableProductoVisible(false)
       setIsTableCategoriaVisible(false)
+      setIsTableUsuarioVisible(false)
+      setIsTableComprasVisible(false)
     } catch (error) {
       console.error(
         "Error al obtener los detalles del tipo de producto:",
@@ -164,9 +177,22 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleDeleteUser = async (usertId) => {
+    try {
+      await removeUser(usertId);
+      fetchUsuarios();
+      showSuccessDialog("usuario borrado correctamente.");
+    } catch (error) {
+      console.error("Error al quitar usuario:", error);
+    }
+  };
+
   const handleInicial = () => {
     setIsTableCategoriaVisible(true)
     setIsTableProductoVisible(true)
+    setIsTableUsuarioVisible(true)
+    setIsTableUsuarioVisible(true)
+    setIsTableComprasVisible(true)
   };
 
   const handleShowFormProducto = () => {
@@ -174,18 +200,33 @@ const AdminDashboard = () => {
     setIsTableProductoVisible(false)
     setIsTableCategoriaVisible(false)
     setIsFormCategoriaVisible(false);
+    setIsTableUsuarioVisible(false)
+    setIsTableComprasVisible(false)
   };
   const handleShowFormCategoria = () => {
     setIsFormCategoriaVisible(true);
     setIsFormProductoVisible(false);
     setIsTableProductoVisible(false)
     setIsTableCategoriaVisible(false)
+    setIsTableUsuarioVisible(false)
+    setIsTableComprasVisible(false)
+  };
+
+  const handleShowFormUsuario = () => {
+    setIsFormCategoriaVisible(true);
+    setIsFormProductoVisible(false);
+    setIsTableProductoVisible(false)
+    setIsTableCategoriaVisible(false)
+    setIsTableUsuarioVisible(false)
+    setIsTableComprasVisible(false)
   };
 
   const handleCloseFormProducto = () => {
     setIsFormProductoVisible(false);
     setIsTableProductoVisible(true)
     setIsTableCategoriaVisible(true)
+    setIsTableUsuarioVisible(true)
+    setIsTableComprasVisible(true)
     setIsFormCategoriaVisible(false);
     setIsEditFormProductoVisible(false);
     setNewProduct({});
@@ -197,6 +238,8 @@ const AdminDashboard = () => {
     setIsFormCategoriaVisible(false);
     setIsTableProductoVisible(true)
     setIsTableCategoriaVisible(true)
+    setIsTableComprasVisible(true)
+    setIsTableUsuarioVisible(true)
     setIsEditFormCategoriaVisible(false);
     setNewCategoria({});
     setErrorMessage("");
@@ -206,6 +249,8 @@ const AdminDashboard = () => {
     setIsEditFormProductoVisible(false);
     setIsTableProductoVisible(true)
     setIsTableCategoriaVisible(true)
+    setIsTableComprasVisible(true)
+    setIsTableUsuarioVisible(true)
     setProductoAEditar(null);
   };
 
@@ -234,6 +279,24 @@ const AdminDashboard = () => {
       setProducts(productsData);
     } catch (error) {
       console.error("Error al obtener productos de api:", error);
+    }
+  };
+
+  const fetchUsuarios = async () => {
+    try {
+      const usuariosData = await getAllUsuarios();
+      setUsuarios(usuariosData);
+    } catch (error) {
+      console.error("Error al obtener usuarios de api:", error);
+    }
+  };
+
+  const fetchCompras = async () => {
+    try {
+      const comprasData = await getAllCompras();
+      setCompras(comprasData);
+    } catch (error) {
+      console.error("Error al obtener compras de api:", error);
     }
   };
 
@@ -282,6 +345,8 @@ const AdminDashboard = () => {
     fetchAdmins();
     fetchTipoProducts();
     fetchPlataformas();
+    fetchUsuarios()
+    fetchCompras()
   }, [periodRecargas, periodProducto, idAdmin]);
 
   return (
@@ -370,47 +435,47 @@ const AdminDashboard = () => {
             )}
           </Grid>
 
-           {isTableCategoriaVisible && (
-              <Grid item xs={12}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleShowFormCategoria}
-                >
-                  Añadir Categoria +
-                </Button>
-              </Grid>
-            )}
-
-            {isTableCategoriaVisible && (
-              <Grid item xs={12}>
-                <Paper elevation={3} style={{ padding: "16px" }}>
-                  <Typography variant="h5" gutterBottom>
-                    Lista de Categorias
-                  </Typography>
-                  <CategoriasTabla
-                    categorias={categorias}
-                    onEdit={handleEditCategoria}
-                    onDelete={handleDeleteCategoria}
-                    onReload={fetchTipoProducts}
-                  />
-                </Paper>
-              </Grid>
-            )}
-
-            <Grid
-              item
-              xs={12}
-              md={12}
-              sx={{ display: "flex", justifyContent: "center" }}
-            >
-              {isFormCategoriaVisible && (
-                <CategoriaFormulario
-                  onCloseForm={handleCloseFormCategoria}
-                  onCategoriaAdded={fetchTipoProducts}
-                />
-              )}
+          {isTableCategoriaVisible && (
+            <Grid item xs={12}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleShowFormCategoria}
+              >
+                Añadir Categoria +
+              </Button>
             </Grid>
+          )}
+
+          {isTableCategoriaVisible && (
+            <Grid item xs={12}>
+              <Paper elevation={3} style={{ padding: "16px" }}>
+                <Typography variant="h5" gutterBottom>
+                  Lista de Categorias
+                </Typography>
+                <CategoriasTabla
+                  categorias={categorias}
+                  onEdit={handleEditCategoria}
+                  onDelete={handleDeleteCategoria}
+                  onReload={fetchTipoProducts}
+                />
+              </Paper>
+            </Grid>
+          )}
+
+          <Grid
+            item
+            xs={12}
+            md={12}
+            sx={{ display: "flex", justifyContent: "center" }}
+          >
+            {isFormCategoriaVisible && (
+              <CategoriaFormulario
+                onCloseForm={handleCloseFormCategoria}
+                onCategoriaAdded={fetchTipoProducts}
+              />
+            )}
+          </Grid>
 
           <Grid
             item
@@ -428,6 +493,47 @@ const AdminDashboard = () => {
               />
             )}
           </Grid>
+
+          {/* {isTableUsuarioVisible && (
+            <Grid item xs={12}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleShowFormUsuario}
+              >
+                Añadir Usuario +
+              </Button>
+            </Grid>
+          )} */}
+
+          {isTableCategoriaVisible && (
+            <Grid item xs={12}>
+              <Paper elevation={3} style={{ padding: "16px" }}>
+                <Typography variant="h5" gutterBottom>
+                  Lista de Usuarios
+                </Typography>
+                <UsuariosTabla
+                  usuarios={usuarios}
+                  onEdit={handleEditCategoria}
+                  onDelete={handleDeleteUser}
+                  onReload={fetchUsuarios}
+                />
+              </Paper>
+            </Grid>
+          )}
+
+          {isTableComprasVisible && (
+            <Grid item xs={12}>
+              <Paper elevation={3} style={{ padding: "16px" }}>
+                <Typography variant="h5" gutterBottom>
+                  Total de Compras
+                </Typography>
+                <ComprasTabla
+                  compras={compras}
+                />
+              </Paper>
+            </Grid>
+          )}
 
           <Grid item xs={12}>
             <Paper elevation={3} style={{ padding: "16px" }}>
