@@ -1,9 +1,9 @@
 import axios from 'axios';
 
 //para local
-//const API_URL = 'http://localhost:4000/api'; // Cambia esto a la URL de tu backend
+const API_URL = 'http://localhost:4000/api'; // Cambia esto a la URL de tu backend
 // para despliegue en internet
-const API_URL = 'https://apimfseriemax.onrender.com/api'; // Cambia esto a la URL de tu backend
+//const API_URL = 'https://apimfseriemax.onrender.com/api'; // Cambia esto a la URL de tu backend
 
 // Funciones para Administrador
 export const createAdmin = async (adminData) => {
